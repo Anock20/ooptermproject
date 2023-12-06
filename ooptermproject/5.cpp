@@ -1,291 +1,196 @@
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <sys/time.h>
-//#include <curses.h>
-//#include <string.h>
-//#include <signal.h>
-//#include <pthread.h>
-//#include <time.h>
-//
-//int hp = 100;        // 체력
-//int a = 0;            // 문자열 위치
-//int i = 0;            // for문용
-//int length = 0;
-//char hpText[3] = { 0 };
-//node* ptr = 0;
-//char enterText[20] = { 0 };
-//int enterHere = 0;
-//int sleep_time = 1;
-//
-//void function(int signum)
-//{
-//    reset();        // 메모리 할당 해제
-//    curs_set(1);    // 커서 표시 활성화
-//    endwin();        // 콘솔 윈도우창 닫기
-//    exit(1);        // 프로그램 종료
-//}
-//
-//// 큐를 비워주고 메모리 할당을 해제해주는 함수
-//void reset()
-//{
-//    node* temp = NULL;
-//    node* temp2 = NULL;
-//
-//    temp = ptr;
-//
-//    if (temp != NULL)
-//    {
-//        while (length > 0)
-//        {
-//            temp = ptr;
-//
-//            while (temp->link)
-//            {
-//                temp2 = temp;
-//                temp = temp->link;
-//            }
-//
-//            free(temp);
-//
-//            if (temp2 != NULL)
-//                temp2->link = NULL;
-//
-//            length--;
-//            temp2 = NULL;
-//        }
-//
-//        ptr = NULL;
-//    }
-//}
-//
-//// 화면에 글자를 보이게만 하는 함수
-//void thread_1(void* none)
-//{
-//    int t = sleep_time;
-//
-//    while (hp > 0)
-//    {
-//        //alarm(2);
-//
-//        node* temp = 0;
-//
-//        addQueue(returnWord(), (rand() % 40) + 8);
-//        temp = ptr;
-//
-//        while (temp)
-//        {
-//            draw(temp->row, temp->col, temp->str);
-//            temp = temp->link;
-//        }
-//
-//        move(17, 12);
-//
-//        sleep(t);
-//
-//    }
-//}
-//
-//// 자연수를 문자열로
-//int itoa(int n, char* str)
-//{
-//    int temp;
-//
-//    if (n <= 0)
-//    {
-//        strcpy(str, "0");
-//        return 0;
-//    }
-//
-//    temp = itoa(n / 10, str);
-//
-//    *(str + temp) = 48 + (n % 10);
-//
-//    return temp + 1;
-//}
-//
-//// 입력한 문자열을 큐에서 찾아서 없애주는 함수
-//void findWord(char* str)
-//{
-//    node* temp = 0;
-//    temp = ptr;
-//
-//    while (temp)
-//    {
-//        if (!strcmp(temp->str, str))
-//        {
-//            strcpy(temp->str, "");
-//            return;
-//        }
-//        else
-//            temp = temp->link;
-//    }
-//}
-//
-//// 노드 생성
-//node* makeNode()
-//{
-//    node* temp = 0;
-//
-//    temp = (node*)malloc(sizeof(*temp));
-//    temp->link = 0;
-//}
-//
-//// 한 줄씩 밑으로 내려오게 해 주는 코드
-//void makePlusOne()
-//{
-//    node* temp = ptr->link;
-//
-//    while (temp)
-//    {
-//        temp->row += 1;
-//        temp = temp->link;
-//    }
-//}
-//
-//// 큐에 하나씩 넣는 함수
-//void addQueue(char* str, int col)
-//{
-//    node* temp = 0;
-//    node* temp2 = 0;
-//
-//    if (ptr == 0)
-//    {
-//        ptr = makeNode();
-//        strcpy(ptr->str, str);
-//        ptr->row = 1;
-//        ptr->col = col;
-//    }
-//    else
-//    {
-//        temp = makeNode();
-//        strcpy(temp->str, str);
-//        temp->row = 1;
-//        temp->col = col;
-//        temp->link = ptr;
-//        ptr = temp;
-//        makePlusOne();
-//    }
-//
-//    length++;
-//
-//    if (length > 15)
-//    {
-//        while (temp->link)
-//        {
-//            temp2 = temp;
-//            temp = temp->link;
-//        }
-//
-//        hp -= strlen(temp->str);
-//
-//        hpText[2] = '\0';
-//
-//        itoa(hp, hpText);
-//        move(17, 55);
-//        addstr("    ");
-//        move(17, 55);
-//        addstr(hpText);
-//
-//        free(temp);
-//        temp2->link = 0;
-//
-//        length--;
-//    }
-//}
-//
-//// 단어 데이터베이스에서 글자를 골라서 리턴해주는 부분
-//char* returnWord()
-//{
-//    char* database[] = { "Apple", "Jung", "Cocaine", "Hello", "Elite", "Fail", "Game",
-//                         "Halo", "Icon", "Jail", "Knight", "Lake", "Monkey", "Nope" };
-//
-//    if (a == 13)
-//        a = 0;
-//    else
-//        a++;
-//
-//    return database[a];
-//}
-//
-//// row행 col열에 문자열 str을 출력해주는 부분
-//void draw(int row, int col, char* str)
-//{
-//    move(row, 0);
-//    addstr("                                                       ");
-//    move(row, col);
-//    addstr(str);
-//    refresh();
-//}
-//
-//void startGame()
-//{
-//    pthread_t t1;
-//
-//    clear();
-//
-//    draw(16, 0, "   -------------------------------------------------------- ");
-//    draw(17, 0, "  | Enter :                                     | HP :     |");
-//    draw(18, 0, "   -------------------------------------------------------- ");
-//
-//    itoa(hp, hpText);
-//    move(17, 55);
-//    addstr("    ");
-//    move(17, 55);
-//    addstr(hpText);
-//
-//    pthread_create(&t1, NULL, thread_1, NULL);
-//
-//    while (hp > 0)
-//    {
-//        for (enterHere = 0; enterHere < 20;)
-//        {
-//            int c = getch();
-//
-//            if (c == '\n')
-//            {
-//                enterText[enterHere] = '\0';
-//                findWord(enterText);
-//
-//                for (i = 0; i < 20; i++)
-//                {
-//                    enterText[i] = '\0';
-//                }
-//
-//
-//                draw(17, 0, "  | Enter :                                     | HP : ");
-//                move(17, 12);
-//
-//                break;
-//            }
-//            else if (c == 127)
-//            {
-//                if (enterHere > 0)
-//                {
-//                    enterText[--enterHere] = '\0';
-//                    move(17, 12);
-//                    addstr("                    ");
-//                    move(17, 12);
-//                    addstr(enterText);
-//                }
-//                else
-//                {
-//                    move(17, 12);
-//                    addstr("                    ");
-//                }
-//            }
-//            else
-//            {
-//                enterText[enterHere++] = c;
-//                move(17, 12);
-//                addstr(enterText);
-//            }
-//
-//            refresh();
-//        }
-//    }
-//
-//    pthread_join(&t1, NULL);
-//
-//    reset();
-//    clear();
-//}
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <conio.h>
+#include <windows.h>
+#include <thread>
+
+using namespace std;
+
+const int MAX_STRING_LENGTH = 5;
+const int RECTANGLE_WIDTH = 40;
+const int RECTANGLE_HEIGHT = 20;
+
+class StringGenerator {
+public:
+    virtual string generateRandomString() = 0;
+    virtual ~StringGenerator() = default;
+};
+
+class BasicStringGenerator : public StringGenerator {
+public:
+    string generateRandomString() override {
+        string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        string randomString;
+
+        for (int i = 0; i < MAX_STRING_LENGTH; ++i) {
+            int index = rand() % characters.length();
+            randomString += characters[index];
+        }
+
+        return randomString;
+    }
+};
+
+class StringDecorator : public StringGenerator {
+protected:
+    unique_ptr<StringGenerator> component;
+
+public:
+    StringDecorator(unique_ptr<StringGenerator> comp) : component(move(comp)) {}
+
+    string generateRandomString() override {
+        return component->generateRandomString();
+    }
+};
+
+class AlphaNumericDecorator : public StringDecorator {
+public:
+    AlphaNumericDecorator(unique_ptr<StringGenerator> comp) : StringDecorator(move(comp)) {}
+
+    string generateRandomString() override {
+        string baseString = component->generateRandomString();
+        string extraCharacters = "0123456789";
+
+        for (int i = 0; i < MAX_STRING_LENGTH; ++i) {
+            if (rand() % 2 == 0) {
+                int index = rand() % extraCharacters.length();
+                baseString[i] = extraCharacters[index];
+            }
+        }
+
+        return baseString;
+    }
+};
+
+class AlphaSpecialCharDecorator : public StringDecorator {
+public:
+    AlphaSpecialCharDecorator(unique_ptr<StringGenerator> comp) : StringDecorator(move(comp)) {}
+
+    string generateRandomString() override {
+        string baseString = component->generateRandomString();
+        string extraCharacters = "!@#$%^&*()-=_+[]{}|;:'\",.<>/?";
+
+        for (int i = 0; i < MAX_STRING_LENGTH; ++i) {
+            if (rand() % 2 == 0) {
+                int index = rand() % extraCharacters.length();
+                baseString[i] = extraCharacters[index];
+            }
+        }
+
+        return baseString;
+    }
+};
+
+// Function to create and apply decorators based on user input
+unique_ptr<StringGenerator> createStringGenerator() {
+    unique_ptr<StringGenerator> generator = make_unique<BasicStringGenerator>();
+
+    cout << "Select options:\n";
+    cout << "1. 알파벳\n";
+    cout << "2. 알파벳 + 숫자\n";
+    cout << "3. 알파벳 + 특수문자\n";
+    int option;
+    cin >> option;
+
+    switch (option) {
+    case 1:
+        // Do nothing, use the basic generator
+        break;
+    case 2:
+        generator = make_unique<AlphaNumericDecorator>(move(generator));
+        break;
+    case 3:
+        generator = make_unique<AlphaSpecialCharDecorator>(move(generator));
+        break;
+    default:
+        cout << "Invalid option. Using basic generator.\n";
+        break;
+    }
+
+    return generator;
+}
+
+void printRectangle(int targetStringPosition, int targetStringXPosition, string targetString) {
+    for (int i = 0; i < RECTANGLE_HEIGHT; ++i) {
+        for (int j = 0; j < RECTANGLE_WIDTH; ++j) {
+            if (i == 0 || i == RECTANGLE_HEIGHT - 1 || j == 0 || j == RECTANGLE_WIDTH - 1) {
+                cout << '*';
+            }
+            else if (i == targetStringPosition && j == targetStringXPosition) {
+                cout << targetString;
+                j += MAX_STRING_LENGTH - 1;
+            }
+            else {
+                cout << ' ';
+            }
+        }
+        cout << endl;
+    }
+}
+
+int main() {
+    srand(static_cast<unsigned>(time(0)));
+        unique_ptr<StringGenerator> generator = createStringGenerator();
+        string targetString = generator->generateRandomString();   
+        string inputString;
+    int targetStringPosition = 1;
+    int targetStringXPosition = (rand() % 4) * (RECTANGLE_WIDTH / 4); // Random x position
+
+    while (true) {
+
+        cout << "산성비 타자 게임" << endl;
+        cout << "------------------" << endl;
+        cout << "타이핑할 문자열: " << targetString << endl;
+        cout << "------------------" << endl;
+
+        // 테두리를 '*'로 표시하는 직사각형 출력
+        printRectangle(targetStringPosition, targetStringXPosition, targetString);
+
+        cout << "입력하세요: " << inputString << endl;
+
+        if (_kbhit()) {
+            char inputChar = _getch();
+            if (inputChar == 13) {
+                if (inputString.length() == MAX_STRING_LENGTH) {
+                    if (inputString == targetString) {
+                        targetString = generator->generateRandomString();
+                        inputString.clear();
+                        targetStringPosition = 0; // Start from the top
+                        targetStringXPosition = (rand() % 4) * (RECTANGLE_WIDTH / 4); // Random x position
+                    }
+                    else {
+                        cout << "올바른 문자열을 입력하세요!" << endl;
+                        inputString.clear();
+                    }
+                }
+                else {
+                    cout << "문자열 길이가 5가 아닙니다." << endl;
+                    inputString.clear();
+                }
+            }
+            else {
+                inputString += inputChar;
+                if (inputString.length() > MAX_STRING_LENGTH) {
+                    inputString.pop_back();
+                }
+            }
+        }
+
+        int sleepTime = rand() % 501 + 250; 
+        Sleep(sleepTime);
+
+        if (targetStringPosition < RECTANGLE_HEIGHT - 2) {
+            targetStringPosition++;
+        }
+        else {
+            targetString = generator->generateRandomString();
+            targetStringPosition = 0; // Start from the top
+            targetStringXPosition = (rand() % 4) * (RECTANGLE_WIDTH / 4); // Random x position
+        }
+
+        system("cls"); // Clear the screen after updating the game state
+    }
+
+    return 0;
+}
